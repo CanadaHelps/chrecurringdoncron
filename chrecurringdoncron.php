@@ -3,6 +3,7 @@
 require_once 'chrecurringdoncron.civix.php';
 // phpcs:disable
 use CRM_Chrecurringdoncron_ExtensionUtil as E;
+use CRM_Chrecurringdoncron_ExtensionUtils as ER;
 // phpcs:enable
 
 /**
@@ -117,43 +118,43 @@ function chrecurringdoncron_civicrm_buildForm($formName, &$form) {
     if (!empty($form->_mode) && $form->_mode == 'live') {
        //CRM-1448- Make "Email" mandatory for credit card recurring contributions.
       $form->add('text', 'billingEmailField', ts('Billing Email'),array('class' => 'crm-select2'));
+      $paymentProcessorCreditCards = json_encode(ER::getCreditcardPaymentProcessorValue());
       $billingEmailFieldID = 'billingEmailField';
       $billingNameAddSection = 'billing_name_address-section';
       CRM_Core_Region::instance('page-body')->add(array(
         'script' => "
+        var PaymentProcessorNameList = $paymentProcessorCreditCards;
         setTimeout(function waitDuration() {
           paymentDisplay(cj('#payment_processor_id').find(\"option:selected\").text());
-          identifyPaymentType(cj('#payment_processor_id').find(\"option:selected\").val());
           cj('#payment_processor_id').on('change', function() {
             setTimeout(paymentDisplay, 600,cj(this).find(\"option:selected\").text());
-            setTimeout(identifyPaymentType, 600,cj(this).find(\"option:selected\").val());
           });
 
           cj('#is_recur').change(function() {
-            identifyPaymentType(cj('#payment_processor_id').find(\"option:selected\").val());
+            loadEmailField(cj('#payment_processor_id').find(\"option:selected\").text());
           });
 
           cj('#contact_id').on('change', function() {
-            var contact_id = cj(this).val();
-            identifyPaymentType(cj('#payment_processor_id').find(\"option:selected\").val());
+            loadEmailField(cj('#payment_processor_id').find(\"option:selected\").text());
           });
         });
-        function identifyPaymentType(pr)
-        {
-          CRM.api3('PaymentProcessor', 'get', {
-            \"id\": pr,
-            \"return\": \"payment_type\"
-          }).then(function(result) {
-            cj.each(result.values, function(k, v) {
-              loadEmailField(v.payment_type);
-            });
-          });
+
+        function checkValue(value, arr) {
+          var status = 0;
+          for (var i = 0; i < arr.length; i++) {
+            var name = arr[i];
+            if (name == value) {
+              status = 1;
+              break;
+            }
+          }
+          return status;
         }
 
         function loadEmailField(ar)
         {
-          if (ar == 1) {
-            if(ar == 1 && cj('#is_recur').prop('checked') == true){
+          if (checkValue(cj('#payment_processor_id').find(':selected').text(), PaymentProcessorNameList)) {
+            if(checkValue(cj('#payment_processor_id').find(':selected').text(), PaymentProcessorNameList) && cj('#is_recur').prop('checked') == true){
               var cid = cj('#contact_id').val();
               if(cid){
                 loadEmailAddressFieldData(cid);
@@ -161,7 +162,7 @@ function chrecurringdoncron_civicrm_buildForm($formName, &$form) {
                 cj('.$billingNameAddSection').find('div:nth-child(9)').show();
                 additionalOnlyField();
               }
-            }else if(ar == 1 && cj('#is_recur').prop('checked') == false){
+            }else if(checkValue(cj('#payment_processor_id').find(':selected').text(), PaymentProcessorNameList) && cj('#is_recur').prop('checked') == false){
               cj('.$billingNameAddSection').find('div:nth-child(9)').hide();
             }
           }else{
@@ -179,6 +180,7 @@ function chrecurringdoncron_civicrm_buildForm($formName, &$form) {
           function paymentDisplay(pp) {
             addBillingEmailField();
             cj('.$billingNameAddSection').find('div:nth-child(9)').hide();
+            loadEmailField(pp);
           }
           function addBillingEmailField()
           {
@@ -232,8 +234,9 @@ function chrecurringdoncron_civicrm_postProcess($formName, &$form) {
     //CRM-1448- Make Email field set as Main Primary
     $params = CRM_Utils_Request::exportValues();
     if ($form->getVar('_mode') && $form->getVar('_mode') == 'live') {
+      $paymentProcessorCreditcardList = ER::getCreditcardPaymentProcessorValue();
       $paymentProcessor = $form->getVar('_paymentProcessor');
-      if(!empty($paymentProcessor['name']) && ($paymentProcessor['payment_type'] == 1) && ($params['is_recur'] == 1)){
+      if(!empty($paymentProcessor['name']) && (in_array($paymentProcessor['name'],$paymentProcessorCreditcardList)) && ($params['is_recur'] == 1)){
         $params = CRM_Utils_Request::exportValues();
         if (!empty($params['billingEmailField'])) {
           $email_address = $params['billingEmailField'];
@@ -302,10 +305,11 @@ function chrecurringdoncron_civicrm_validateForm($formName, &$fields, &$files, &
   if($formName == 'CRM_Contribute_Form_Contribution') {
     //CRM-1448- Make Email field manadatory for creditcard and recurring donations
     if ($form->getVar('_mode') && $form->getVar('_mode') == 'live') {
+      $paymentProcessorCreditcardList = ER::getCreditcardPaymentProcessorValue();
       $paymentProcessor = $form->getVar('_paymentProcessor');
       $submitValue = $form->getVar('_submitValues');
       $params = CRM_Utils_Request::exportValues();
-      if(!empty($paymentProcessor['name']) && ($paymentProcessor['payment_type'] == 1) && ($params['is_recur'] == 1)){
+      if(!empty($paymentProcessor['name']) && (in_array($paymentProcessor['name'], $paymentProcessorCreditcardList)) && ($params['is_recur'] == 1)){
         if(empty($fields['billingEmailField']))
         {
           $errors['billingEmailField'] = ts('Email address field can not be empty');

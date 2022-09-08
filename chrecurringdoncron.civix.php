@@ -304,5 +304,11 @@ function _chrecurringdoncron_civix_fixNavigationMenuItems(&$nodes, &$maxNavID, $
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_entityTypes
  */
 function _chrecurringdoncron_civix_civicrm_entityTypes(&$entityTypes) {
-  $entityTypes = array_merge($entityTypes, []);
+  $entityTypes = array_merge($entityTypes, [
+    'CRM_Chrecurringdoncron_DAO_RecurringDonationCompliance' => [
+      'name' => 'RecurringDonationCompliance',
+      'class' => 'CRM_Chrecurringdoncron_DAO_RecurringDonationCompliance',
+      'table' => 'civicrm_recurring_donation_compliance',
+    ],
+  ]);
 }

@@ -131,6 +131,7 @@ class CRM_Chrecurringdoncron_Upgrader extends CRM_Chrecurringdoncron_Upgrader_Ba
   //   }
   //   return TRUE;
   // }
+
   public function upgrade_4205() {
     $this->ctx->log->info('CRM-1462 Build a cronjob extension to send emails through live contributions');
     $result = civicrm_api3('Job', 'get', [

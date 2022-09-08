@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Job.EmailInitiatorRecurringContributionLastHour API
  *

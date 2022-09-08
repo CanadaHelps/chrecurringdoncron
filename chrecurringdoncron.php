@@ -113,6 +113,36 @@ function chrecurringdoncron_civicrm_entityTypes(&$entityTypes) {
  *
  */
 function chrecurringdoncron_civicrm_buildForm($formName, &$form) {
+
+  if($formName == 'CRM_Contribute_Form_CancelSubscription') {
+    //CRM-1452 "Cancel Recurring Donation" form related changes.
+    $getSubscriptionDetails = $form->getVar('_subscriptionDetails');
+    if(isset($getSubscriptionDetails)){
+     $frequency_unit = $getSubscriptionDetails->frequency_unit;
+     $amount = CRM_Utils_Money::format($getSubscriptionDetails->amount);
+     $frequency_interval = $getSubscriptionDetails->frequency_interval;
+     $charityName = Civi::settings()->get('org_name');
+     CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        var button_html = $('.crm-submit-buttons').html();
+        $('#is_notify').prop('checked', true);
+        $('h1.page-header').html('Cancel Recurring Donation');
+        $('.crm-submit-buttons').hide();
+        $('div.help').find('strong').html('You currently have recurring donation of $amount processed every $frequency_interval $frequency_unit. Thank you for support of $charityName');
+        $('div.help').find('.content').remove();
+        $('div.help').find('i').remove();
+        $('.crm-contributionrecur-form-block-cancel_reason td label').html('Why are you cancelling this donation?(optional)');
+        $('.crm-contributionrecur-form-block-send_cancel_request').hide();
+        $('.crm-contributionrecur-form-block-is_notify').hide();
+        $('<tr class=\"crm-contributionrecur-form-block-send_cancel_request\" ><td class=\"label\"><label>Are you sure you want to cancel your donation ?</label></td><td><div class=\"crm-submit-buttons\" style=\"margin-top: 0px !important;\"></div></td></tr>').insertAfter(cj('.crm-contributionrecur-form-block-cancel_reason'));
+        $('tr.crm-contributionrecur-form-block-send_cancel_request td:nth-child(2)').find('div').append(button_html);
+        $('</br></br>').insertAfter($('.crm-submit-buttons').find('#_qf_CancelSubscription_submit-top'));
+        $('.crm-submit-buttons').find('#_qf_CancelSubscription_submit-top').html('Yes, cancel my donation');
+        $('.crm-submit-buttons').find('#_qf_CancelSubscription_cancel-top').html('No, continue donating');
+      });");
+    }
+  }
+
   if($formName == 'CRM_Contribute_Form_Contribution')
   {
     if (!empty($form->_mode) && $form->_mode == 'live') {
@@ -224,6 +254,25 @@ function chrecurringdoncron_civicrm_buildForm($formName, &$form) {
         ",
       ));
     }
+  }
+}
+
+
+/**
+* Implements hook_civicrm_pageRun().
+*
+* @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pageRun
+*/
+function chrecurringdoncron_civicrm_pageRun(&$page) {
+  $pageName = $page->getVar('_name');
+  if($pageName == 'CRM_Contribute_Page_SubscriptionStatus') {
+    //CRM-1452 Display confirmation message regarding cancelation of recurring contribution.
+    CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        $('.page-header').text('');
+        $('#crm-main-content-wrapper').find('div.messages').hide();
+      });
+    ");
   }
 }
 

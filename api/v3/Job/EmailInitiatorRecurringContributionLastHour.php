@@ -4,7 +4,7 @@ function civicrm_api3_job_email_initiator_recurring_contribution_last_hour($para
     
     $params = array();
     $params['from'] = 'From Example <wellnessave@canadahelps.ca>';
-    $params['toName'] = 'To Example';
+    $params['toName'] = 'To  Example';
     $params['toEmail'] = 'test.chhelp29@gmail.com';
     $params['subject'] = 'Subject Example';
     $params['text'] = 'Example text';

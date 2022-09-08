@@ -198,15 +198,15 @@ function chrecurringdoncron_civicrm_buildForm($formName, &$form) {
             }).then(function(result) {
             cj('#$billingEmailFieldID').remove();
             cj('.$billingNameAddSection').find('div:nth-child(9)').show();
-          if(result.count >= 1)
-          {
-            cj('.billing_name_address-group').find('div:nth-child(9)').find('.content').after('<select   class=\"crm-select2 crm-form-select\" name=\"$billingEmailFieldID\" id=\"$billingEmailFieldID\"  ></select>');
-          }
-          if(result.count == 0)
-          {
-            cj('.billing_name_address-group').find('div:nth-child(9)').find('.content').after('<input size=\"30\" maxlength=\"60\"  class=\"required crm-form-text\" name=\"$billingEmailFieldID\" type=\"text\" id=\"$billingEmailFieldID\" >');
-          }
-          cj.each(result, function(key, value) {
+            if(result.count >= 1)
+            {
+              cj('.billing_name_address-group').find('div:nth-child(9)').find('.content').after('<select   class=\"crm-select2 crm-form-select\" name=\"$billingEmailFieldID\" id=\"$billingEmailFieldID\"  ></select>');
+            }
+            if(result.count == 0)
+            {
+              cj('.billing_name_address-group').find('div:nth-child(9)').find('.content').after('<input size=\"30\" maxlength=\"60\"  class=\"required crm-form-text\" name=\"$billingEmailFieldID\" type=\"text\" id=\"$billingEmailFieldID\" >');
+            }
+            cj.each(result, function(key, value) {
                 if(key == 'values' && result.count >= 1)
                 {
                   cj.each(value, function(k, v) {

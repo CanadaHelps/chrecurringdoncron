@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<extension key="chrecurringdoncron" type="module">
+  <file>chrecurringdoncron</file>
+  <name>CH Emails initiator-Recurring contributions</name>
+  <description>This extension provides the functionality of adding schedule job for triggering mails for recurring contribution.</description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>ch-tejal</author>
+    <email>tejalg@canadahelps.org</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">https://github.com/CanadaHelps/chrecurringdoncron</url>
+    <url desc="Documentation">https://github.com/CanadaHelps/chrecurringdoncron</url>
+    <url desc="Support">https://github.com/CanadaHelps/chrecurringdoncron</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <releaseDate>2022-08-19</releaseDate>
+  <version>1.0</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>5.0</ver>
+  </compatibility>
+  <comments>This is a new, undeveloped module</comments>
+  <classloader>
+    <psr4 prefix="Civi\" path="Civi"/>
+  </classloader>
+  <civix>
+    <namespace>CRM/Chrecurringdoncron</namespace>
+    <format>22.05.2</format>
+    <angularModule>crmChrecurringdoncron</angularModule>
+  </civix>
+  <mixins>
+    <mixin>mgd-php@1.0.0</mixin>
+    <mixin>setting-php@1.0.0</mixin>
+  </mixins>
+</extension>
